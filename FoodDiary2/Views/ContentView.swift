@@ -9,9 +9,9 @@ struct ContentView: View {
     var foodEntries: [FoodEntry]
     
     // 食物类别（FoodCategory）
-    @Query(sort: [SortDescriptor(\FoodCategory.type)])
+    @Query(sort: [SortDescriptor(\FoodCategory.index, order: .forward)])
     var foodCategories: [FoodCategory]
-    
+
     // 当前选中的类别、食物
     @State private var selectedType: String = ""
     @State private var selectedFood: String = ""
@@ -214,16 +214,16 @@ struct ContentView: View {
         return currentCategory.foods
     }
     
-
     
     // MARK: - 初始化一些默认类别与食物
     private func initializeDefaultCategories() {
         let defaults = [
-            FoodCategory(type: "主食",  foods: ["米饭", "面条", "馒头", "面包", "饺子"]),
-            FoodCategory(type: "肉类",  foods: ["鸡肉", "猪肉", "牛肉", "鱼", "虾"]),
-            FoodCategory(type: "蔬菜",  foods: ["西红柿", "黄瓜", "白菜", "菠菜", "胡萝卜"]),
-            FoodCategory(type: "零食",  foods: ["薯片", "巧克力", "饼干", "糖果", "坚果"]),
-            FoodCategory(type: "饮料",  foods: ["可乐", "果汁", "咖啡", "奶茶", "矿泉水"])
+            FoodCategory(type: "🍚",  foods: ["🍚", "🍜", "🍞", "🥟", "🌽", "🥚", "🥔", "🥛"], index: 1),
+            FoodCategory(type: "🍖",  foods: ["🐔", "🐷", "🐂", "🐟", "🦐"], index:2),
+            FoodCategory(type: "🥬",  foods: ["🍅", "🥒", "🥬", "🥦", "🥕"], index:3),
+            FoodCategory(type: "🍊",  foods: ["🍊", "🍎", "🍍", "🍑", "🍌", "🍇", "🍓"], index:4),
+            FoodCategory(type: "🥤",  foods: ["🥤", "☕️", "🧋", "💧", "🍵", "🍺"], index:5),
+            FoodCategory(type: "⚠️",  foods: ["🍫", "🍪", "🍬", "🌰", "🍟", "🍰", "🍦"], index:6)
         ]
         defaults.forEach { modelContext.insert($0) }
     }

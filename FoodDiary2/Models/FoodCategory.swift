@@ -14,9 +14,12 @@ import Foundation
 class FoodCategory {
     var type: String
     var foods: [String]
+    var index: Int
     
-    init(type: String, foods: [String]) {
+    init(type: String, foods: [String], index: Int=0) {
         self.type = type
         self.foods = foods
+        self.index = index
     }
 }
+
