@@ -21,6 +21,11 @@ struct ContentView: View {
     @State private var showAddSuccess = false
     @State private var showEditCategories = false
     
+    // 在 ContentView 中添加以下状态变量
+    @State private var showAddSuccessMessage: Bool = false
+    @State private var successMessage: String = ""
+
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 24) {
@@ -130,6 +135,32 @@ struct ContentView: View {
             .padding(.top)
             .navigationTitle("今天吃了什么")
             
+            // 在 body 中添加淡出提示的视图
+            .overlay(
+                Group {
+                    if showAddSuccessMessage {
+                        Text("已记录：\(successMessage)") // 使用固定的 successMessage
+                            .padding(12)
+                            .background(Color.gray.opacity(0.8))
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                            .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+                            .transition(.opacity)
+                            .onAppear {
+                                // 2 秒后自动隐藏
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    withAnimation {
+                                        showAddSuccessMessage = false
+                                    }
+                                }
+                            }
+                    }
+                }
+                .animation(.easeInOut(duration: 0.3), value: showAddSuccessMessage)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding(.top, 400)
+            )
+            
             // 4. 导出TXT按钮在右上角
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -183,6 +214,8 @@ struct ContentView: View {
         return currentCategory.foods
     }
     
+
+    
     // MARK: - 初始化一些默认类别与食物
     private func initializeDefaultCategories() {
         let defaults = [
@@ -204,7 +237,11 @@ struct ContentView: View {
         
         do {
             try modelContext.save()
-            showAddSuccess = true
+            // 显示成功提示
+            successMessage = selectedFood // 固定提示框的内容
+            withAnimation {
+                showAddSuccessMessage = true
+            }
         } catch {
             print("❌ 数据保存失败: \(error.localizedDescription)")
         }
