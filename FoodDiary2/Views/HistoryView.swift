@@ -16,15 +16,21 @@ struct HistoryView: View {
         NavigationView {
             List {
                 ForEach(foodEntries) { entry in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("类型: \(entry.type)")
-                            .font(.headline)
-                        Text("食物: \(entry.name)")
-                        Text("日期: \(entry.date, formatter: dateFormatter)")
+                    HStack(spacing: 8) {
+                        // 1. 类型
+                        Text(entry.type)
+                            .fontWeight(.semibold)
+                        
+                        // 2. 食物
+                        Text("- \(entry.name)")
+                        
+                        Spacer()
+                        
+                        // 3. 日期(右侧对齐，字体略小)
+                        Text("\(entry.date, formatter: dateFormatter)")
                             .font(.footnote)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.secondary)
                     }
-                    .padding(.vertical, 4)
                 }
                 .onDelete(perform: deleteEntries)
             }
@@ -33,7 +39,6 @@ struct HistoryView: View {
         }
     }
     
-    /// 手动加载全部 FoodEntry
     private func loadEntries() {
         do {
             // 从数据库获取所有 FoodEntry
@@ -45,7 +50,6 @@ struct HistoryView: View {
         }
     }
     
-    /// 左滑删除
     private func deleteEntries(at offsets: IndexSet) {
         for index in offsets {
             let entryToDelete = foodEntries[index]
@@ -61,8 +65,8 @@ struct HistoryView: View {
     
     private var dateFormatter: DateFormatter {
         let f = DateFormatter()
-        f.dateStyle = .short
-        f.timeStyle = .medium
+        f.dateStyle = .short   // 例如 “2/5/25”
+        f.timeStyle = .short   // 例如 “2:27 PM”
         return f
     }
 }
