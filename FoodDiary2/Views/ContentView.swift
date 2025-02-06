@@ -25,7 +25,6 @@ struct ContentView: View {
     @State private var showAddSuccessMessage: Bool = false
     @State private var successMessage: String = ""
 
-    
     var body: some View {
         NavigationView {
             VStack(spacing: 24) {
@@ -223,7 +222,7 @@ struct ContentView: View {
             FoodCategory(type: "🥬",  foods: ["🍅", "🥒", "🥬", "🥦", "🥕"], index:3),
             FoodCategory(type: "🍊",  foods: ["🍊", "🍎", "🍍", "🍑", "🍌", "🍇", "🍓"], index:4),
             FoodCategory(type: "🥤",  foods: ["🥤", "☕️", "🧋", "💧", "🍵", "🍺"], index:5),
-            FoodCategory(type: "⚠️",  foods: ["🍫", "🍪", "🍬", "🌰", "🍟", "🍰", "🍦"], index:6)
+            FoodCategory(type: "⚠️",  foods: ["🍫", "🍪", "🍬", "🍭", "🍯", "🍰", "🍧"], index:6)
         ]
         defaults.forEach { modelContext.insert($0) }
     }
@@ -249,7 +248,7 @@ struct ContentView: View {
     
     // MARK: - 导出为 TXT 并分享
     private func exportToTxt() {
-        // 1. 拼接TXT内容
+        // 1. 拼接 TXT 内容
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .short
         dateFormatter.timeStyle = .medium
@@ -266,20 +265,36 @@ struct ContentView: View {
         filenameDateFormatter.dateFormat = "yyyyMMdd"
         let dateStr = filenameDateFormatter.string(from: Date()) // 类似 "20250205"
         
-        // 3. 写入 Documents 文件夹
+        // 3. 获取 iCloud 文件 URL
+        guard let iCloudURL = getiCloudURL() else { return }
+        
+        // 4. 保存文件到 iCloud
+        saveToFile(iCloudURL: iCloudURL, content: finalString)
+    }
+    
+    /// 获取 iCloud 文件 URL
+    func getiCloudURL() -> URL? {
         let fileManager = FileManager.default
-        let docsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let fileName = "history_\(dateStr).txt"
-        let txtURL = docsURL.appendingPathComponent(fileName)
+        guard let ubiquityURL = fileManager.url(forUbiquityContainerIdentifier: nil) else {
+            print("无法获取 iCloud 容器 URL")
+            return nil
+        }
+        return ubiquityURL.appendingPathComponent("Documents")
+    }
+    
+    // MARK: - 保存文件到 iCloud
+    func saveToFile(iCloudURL: URL, content: String) {
+        let fileName = "history.txt"
+        let fileURL = iCloudURL.appendingPathComponent(fileName)
         
         do {
-            try finalString.write(to: txtURL, atomically: true, encoding: .utf8)
-            print("✅ TXT 文件已保存: \(txtURL.path)")
+            try content.write(to: fileURL, atomically: true, encoding: .utf8)
+            print("✅ 文件已保存到 iCloud: \(fileURL.path)")
             
             // 4. 调用系统分享
-            shareFile(at: txtURL)
+            shareFile(at: fileURL)
         } catch {
-            print("❌ 保存 TXT 文件失败: \(error.localizedDescription)")
+            print("❌ 保存文件到 iCloud 失败: \(error.localizedDescription)")
         }
     }
     
