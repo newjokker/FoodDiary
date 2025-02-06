@@ -1,10 +1,3 @@
-//
-//  FoodEditView.swift
-//  FoodDiary2
-//
-//  Created by jo k ke r 凌 on 2025/2/5.
-//
-
 import SwiftUI
 import SwiftData
 
@@ -16,26 +9,57 @@ struct FoodEditView: View {
     
     @State private var showingAddFood = false
     @State private var newFoodName = ""
+    @State private var editingCategoryName = false
+    @State private var categoryName = ""
     
     var body: some View {
         NavigationView {
             List {
-                ForEach(category.foods, id: \.self) { food in
-                    Text(food)
+                Section(header: Text("类别名称")) {
+                    HStack {
+                        if editingCategoryName {
+                            TextField("类别名称", text: $categoryName)
+                        } else {
+                            Text(category.type)
+                        }
+                        Spacer()
+                        Button(action: {
+                            if editingCategoryName {
+                                // 保存新的类别名称
+                                category.type = categoryName.isEmpty ? "未命名" : categoryName
+                            }
+                            editingCategoryName.toggle()
+                        }) {
+                            Image(systemName: editingCategoryName ? "checkmark.circle" : "pencil")
+                        }
+                    }
                 }
-                .onDelete(perform: deleteFoods)
+                
+                Section(header: Text("食物列表")) {
+                    ForEach(category.foods, id: \.self) { food in
+                        Text(food)
+                    }
+                    .onDelete(perform: deleteFoods)
+                    .onMove(perform: moveFoods)
+                }
             }
-            .navigationTitle("\(category.type) 食物列表")
+            .navigationTitle("编辑食物类别")
             .navigationBarItems(
                 leading: Button("完成") { dismiss() },
-                trailing: Button(action: { showingAddFood = true }) {
-                    Image(systemName: "plus")
+                trailing: HStack {
+                    EditButton()
+                    Button(action: { showingAddFood = true }) {
+                        Image(systemName: "plus")
+                    }
                 }
             )
             .alert("添加新食物", isPresented: $showingAddFood) {
                 TextField("食物名称", text: $newFoodName)
                 Button("取消", role: .cancel) { }
                 Button("添加") { addFood() }
+            }
+            .onAppear {
+                categoryName = category.type
             }
         }
     }
@@ -49,4 +73,9 @@ struct FoodEditView: View {
     private func deleteFoods(at offsets: IndexSet) {
         category.foods.remove(atOffsets: offsets)
     }
+    
+    private func moveFoods(from source: IndexSet, to destination: Int) {
+        category.foods.move(fromOffsets: source, toOffset: destination)
+    }
 }
+
